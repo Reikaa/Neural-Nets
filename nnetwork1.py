@@ -2,15 +2,17 @@
 # MNIST digit recognition 
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
-'''My first neural net; without any optimization. 95 percent accuracy in predicting digits, 10 seconds each epoch.
-Uncomment the draw function to see the ascii drawing of each digit and the corresponding prediction.
-Run by unit_test.py, play with accuracy by adjusting the learning rate and epochs.'''
+'''Neural net adjusted by momentum. Accuracy goes up to 95%, but it fluctuates around it through the last 15 epochs. 
+15 seconds each epoch. Uncomment the draw function to see the ascii drawing 
+of each digit and the corresponding prediction.
+Run by unit_test1.py, play with accuracy by adjusting the learning rate and epochs.'''
 
 import numpy as np
 import random
 import math
 import sys
 import time
+
 
 class Network:            
     '''
@@ -20,11 +22,14 @@ class Network:
         - feedforward -> get activation vector
 
     '''
-    def __init__(self, sizes):
+    def __init__(self, sizes, mu):
         self.layers = len(sizes)
-        self.sizes = sizes                                                              # list of neurons on each layer
+        self.sizes = sizes   
+        self.mu = mu                                                           # list of neurons on each layer
         self.weights = [np.random.randn(y,x) for x,y in zip(sizes[:-1], sizes[1:])]     # create array of weights with random numbers
         self.biases = [np.random.randn(y,1) for y in sizes[1:]]                         # create array of biases with random numbers
+        self.vb = [np.zeros(b.shape) for b in self.biases]
+        self.vw = [np.zeros(w.shape) for w in self.weights]
 
     def feedForward(self, a):
         '''Calculates the activation vector from all inputs from previous layer.
@@ -46,7 +51,7 @@ class Network:
 
         # repeat this until finding 'reliable' accuracy between desired and real outcomes
         for i in xrange(epochs):
-            print "Starting epochs"
+            print "Starting epoch"
             start = time.time()
             random.shuffle(trainingSet)
             # create smaller samples to do your computations on                                                   
@@ -55,7 +60,7 @@ class Network:
             for batch in batches:
                 self.update(batch, learningRate)
             # take the 10K images that were reserved for validation and check accuracy
-            print "Validation"
+            print "Validating per epoch..."
             if test_data:
                 print "Epoch {0}: {1} / {2}".format(
                     i, self.validate(test_data), n_test)
@@ -79,8 +84,10 @@ class Network:
             deltaBiases, deltaWeights = self.backprop(x,y)
 
             # calculate new biases and weights
-            self.biases = [b - learningRate * db/len(batch) for b,db in zip(self.biases, deltaBiases)]
-            self.weights = [w - learningRate * dw/len(batch) for w,dw in zip(self.weights, deltaWeights)]
+            self.vb = [self.mu * vb - learningRate * db/len(batch) for vb,db in zip(self.vb, deltaBiases)]
+            self.vw = [self.mu * vw - learningRate * dw/len(batch) for vw,dw in zip(self.vw, deltaWeights)]
+            self.weights = [w + vw for w, vw in zip(self.weights, self.vw)]
+            self.biases = [b + vb for b, vb in zip(self.biases, self.vb)]
 
 
         # update biases and weights matrices
@@ -126,7 +133,6 @@ class Network:
         outcome -> the outcome that fired the most. 
         Then check how many images you'll get the correct result for.
         '''
-        print "validate training results per epoch"
         test_results = [(np.argmax(self.feedForward(x)),y) for x, y in test_data]
         # draw(test_data, test_result)                                                    # draw images in command line
         return sum(int(x == y) for x, y in test_results)                                # check for accuracy
@@ -160,6 +166,13 @@ def sigmoid(z):
 def sigmoid_prime(z):
     ''' Returns the derivative of sigmoid(z = w.x + b) w.r.t. z'''
     return sigmoid(z)*(1-sigmoid(z))
+
+
+
+# net = Network([3,4,5])
+# print net.feedForward([[4],[7],[1]])
+
+# run by test in unit_test.py
 
 
 

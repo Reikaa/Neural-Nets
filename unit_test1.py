@@ -2,15 +2,15 @@
 # MNIST digit recognition 
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
-'''Test for nneuwork.py for MNIST dataset, accuracy will change with batch size/number of epochs. See additional files'''
+'''Test for nneuwork1.py for MNIST dataset.'''
 
 import mnist_loader
 training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
 
-import nnetwork
+import nnetwork1
 # input layers are for the MNIST dataset where each image is of 28 x 28
-net = nnetwork.Network([784, 30, 10])
+net = nnetwork1.Network([784, 30, 10], 0.9)
 # the arguments are the following: training data, batch size, learning rate and number of epochs
-net.gradientDescent(training_data, 10, 3.0, 30, test_data=test_data)
+net.gradientDescent(training_data, 10, 0.5, 30, test_data=test_data)
 
 
