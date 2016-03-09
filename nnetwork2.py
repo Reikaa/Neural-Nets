@@ -13,6 +13,7 @@ import random
 import math
 import sys
 import time
+import matplotlib.pyplot as plt
 
 
 class Network:            
@@ -50,11 +51,11 @@ class Network:
         if test_data: 
             n_test = len(test_data)
         trainingSize = len(trainingSet)
-        result_new = 0
+        result_new = []
 
         # repeat this until finding 'reliable' accuracy between desired and real outcomes
         for i in xrange(epochs):
-            print "Starting epoch"
+            print "Starting epoch {0}".format(i)
             start = time.time()
             random.shuffle(trainingSet)
             # create smaller samples to do your computations on                                                   
@@ -63,19 +64,20 @@ class Network:
             for batch in batches:
                 self.update(batch, learningRate)
             # take the 10K images that were reserved for validation and check accuracy
-            print "Validating per epoch..."
+            print "Validating epoch {0}...".format(i)
             if test_data:
                 # update learning rate if performance increase
                 result_old = result_new
-                result_new = self.validate(test_data)
+                result_new.append(self.validate(test_data))
                 if i > 0:
-                    if result_old < result_new:
-                        learningRate -= 0.05               # assuming you're going the right way
-                    print learningRate
+                    if result_old[-1] < result_new[-1]:
+                        learningRate -= 0.03               # assuming you're going the right way
+                        print learningRate
                 print "Epoch {0}: {1} / {2}".format(
-                    i, result_new, n_test)
+                    i, result_new[-1], n_test)
             else:
                 print "Epoch {0} complete".format(i)
+                self.plot(result_new, epochs)
             timer = time.time() - start
             print "Estimated time: ", timer
 
@@ -149,6 +151,16 @@ class Network:
         test_results = [(np.argmax(self.feedForward(x)),y) for x, y in test_data]
         # draw(test_data, test_result)                                                    # draw images in command line
         return sum(int(x == y) for x, y in test_results)                                # check for accuracy
+
+    def plot(self, validation_result, epochs):
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        ax.plot(np.arange(epochs), validation_result)
+        ax.set_xlim([0, epochs])
+        ax.set_xlabel('Epoch')
+        ax.set_ylabel('Result')
+        plt.show()
+
 
 def draw(test_data, test_result):
         # print len(test_data[0])       # 2 tuple inputs
