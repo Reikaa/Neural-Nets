@@ -2,8 +2,8 @@
 # MNIST digit recognition 
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
-'''Neural net adjusted by momentum. Accuracy goes up to 95%, but it fluctuates around it through the last 15 epochs. 
-15 seconds each epoch. Uncomment the draw function to see the ascii drawing 
+'''Neural net adjusted by momentum. Accuracy goes up quickly to nearly 96 percent, slightly better than with the classical model. 
+Time is still about the same: 15 seconds each epoch. Uncomment the draw function to see the ascii drawing 
 of each digit and the corresponding prediction.
 Run by unit_test1.py, play with accuracy by adjusting the learning rate and epochs.'''
 
@@ -65,7 +65,7 @@ class Network:
                 print "Epoch {0}: {1} / {2}".format(
                     i, self.validate(test_data), n_test)
             else:
-                print "Epoch {0} complete".format(j)
+                print "Epoch {0} complete".format(i)
             timer = time.time() - start
             print "Estimated time: ", timer
 

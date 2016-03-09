@@ -60,7 +60,7 @@ class Network:
                 print "Epoch {0}: {1} / {2}".format(
                     i, self.validate(test_data), n_test)
             else:
-                print "Epoch {0} complete".format(j)
+                print "Epoch {0} complete".format(i)
             timer = time.time() - start
             print "Estimated time: ", timer
 

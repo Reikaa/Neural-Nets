@@ -2,10 +2,11 @@
 # MNIST digit recognition 
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
-'''Neural net adjusted by Nesterov momentum. Accuracy goes up quickly to nearly 96 percent, slightly better than with the classical model. 
-Time is still about the same: 15 seconds each epoch. Uncomment the draw function to see the ascii drawing 
-of each digit and the corresponding prediction.
-Run by unit_test1.py, play with accuracy by adjusting the learning rate and epochs.'''
+'''Neural net adjusted by Nesterov momentum. Accuracy goes up quickly to nearly 96 percent, same as with classical momentum.
+Time is still about the same: 15 seconds each epoch. 
+There is also learning rate adoption with step decay, resulting in no significant differences in performance.
+Uncomment the draw function to see the ascii drawing of each digit and the corresponding prediction.
+Run by unit_test2.py, play with accuracy by adjusting the learning rate and epochs.'''
 
 import numpy as np
 import random
@@ -46,8 +47,10 @@ class Network:
         being the training input and y being the desired output ->classification.
         You can use stochastic gradient descent with smaller batch sizes.
         '''
-        if test_data: n_test = len(test_data)
+        if test_data: 
+            n_test = len(test_data)
         trainingSize = len(trainingSet)
+        result_new = 0
 
         # repeat this until finding 'reliable' accuracy between desired and real outcomes
         for i in xrange(epochs):
@@ -62,10 +65,17 @@ class Network:
             # take the 10K images that were reserved for validation and check accuracy
             print "Validating per epoch..."
             if test_data:
+                # update learning rate if performance increase
+                result_old = result_new
+                result_new = self.validate(test_data)
+                if i > 0:
+                    if result_old < result_new:
+                        learningRate -= 0.05               # assuming you're going the right way
+                    print learningRate
                 print "Epoch {0}: {1} / {2}".format(
-                    i, self.validate(test_data), n_test)
+                    i, result_new, n_test)
             else:
-                print "Epoch {0} complete".format(j)
+                print "Epoch {0} complete".format(i)
             timer = time.time() - start
             print "Estimated time: ", timer
 
@@ -89,8 +99,8 @@ class Network:
             # Nesterov update
             self.vb = [self.mu * vb - learningRate * db/len(batch) for vb,db in zip(self.vb, deltaBiases)]
             self.vw = [self.mu * vw - learningRate * dw/len(batch) for vw,dw in zip(self.vw, deltaWeights)]
-            self.weights = [w - self.mu * v + (1 + mu) * vw for w, v, vw in zip(self.weights, self.vw_prev, self.vw)]
-            self.biases = [b - self.mu * v + (1 + mu) * vb for b, v, vb in zip(self.biases, self.vb_prev, self.vb)]
+            self.weights = [w - self.mu * v + (1 + self.mu) * vw for w, v, vw in zip(self.weights, vw_prev, self.vw)]
+            self.biases = [b - self.mu * v + (1 + self.mu) * vb for b, v, vb in zip(self.biases, vb_prev, self.vb)]
 
 
         # update biases and weights matrices
