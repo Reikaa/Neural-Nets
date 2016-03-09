@@ -5,6 +5,7 @@
 '''
 Plots how well our neural net is doing with different values of eta.
 '''
+
 # Standard library
 import json
 import random
