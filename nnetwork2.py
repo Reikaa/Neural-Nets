@@ -2,8 +2,8 @@
 # MNIST digit recognition 
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
-'''Neural net adjusted by Nesterov momentum. Accuracy goes up to 95%, but it fluctuates around it through the last 15 epochs. 
-15 seconds each epoch. Uncomment the draw function to see the ascii drawing 
+'''Neural net adjusted by Nesterov momentum. Accuracy goes up quickly to nearly 96 percent, slightly better than with the classical model. 
+Time is still about the same: 15 seconds each epoch. Uncomment the draw function to see the ascii drawing 
 of each digit and the corresponding prediction.
 Run by unit_test1.py, play with accuracy by adjusting the learning rate and epochs.'''
 
@@ -170,12 +170,6 @@ def sigmoid_prime(z):
     ''' Returns the derivative of sigmoid(z = w.x + b) w.r.t. z'''
     return sigmoid(z)*(1-sigmoid(z))
 
-
-
-# net = Network([3,4,5])
-# print net.feedForward([[4],[7],[1]])
-
-# run by test in unit_test.py
 
 
 

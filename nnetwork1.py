@@ -169,10 +169,5 @@ def sigmoid_prime(z):
 
 
 
-# net = Network([3,4,5])
-# print net.feedForward([[4],[7],[1]])
-
-# run by test in unit_test.py
-
 
 
