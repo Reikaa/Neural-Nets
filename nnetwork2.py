@@ -55,7 +55,7 @@ class Network:
 
         # repeat this until finding 'reliable' accuracy between desired and real outcomes
         for i in xrange(epochs):
-            print "Starting epoch {0}".format(i)
+            print "Starting epoch {0} with learning rate {1}".format(i, learningRate)
             start = time.time()
             random.shuffle(trainingSet)
             # create smaller samples to do your computations on                                                   
@@ -71,7 +71,7 @@ class Network:
                 result_new.append(self.validate(test_data))
                 if i > 0:
                     if result_old[-1] < result_new[-1]:
-                        learningRate -= 0.03               # assuming you're going the right way
+                        learningRate -= 0.003              # assuming you're going the right way
                         print learningRate
                 print "Epoch {0}: {1} / {2}".format(
                     i, result_new[-1], n_test)
@@ -103,9 +103,6 @@ class Network:
             self.vw = [self.mu * vw - learningRate * dw/len(batch) for vw,dw in zip(self.vw, deltaWeights)]
             self.weights = [w - self.mu * v + (1 + self.mu) * vw for w, v, vw in zip(self.weights, vw_prev, self.vw)]
             self.biases = [b - self.mu * v + (1 + self.mu) * vb for b, v, vb in zip(self.biases, vb_prev, self.vb)]
-
-
-        # update biases and weights matrices
 
     def backprop(self, x, y):
         ''' Takes (x,y) where x is the pixel from the training image, y is the desired outcome
