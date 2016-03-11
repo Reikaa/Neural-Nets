@@ -12,13 +12,8 @@ import numpy as np
 import random
 import math
 import sys
-import os
 import time
 import matplotlib.pyplot as plt
-from bokeh.plotting import figure, output_server, show, curdoc
-from bokeh.models import ColumnDataSource
-import subprocess
-import threading
 
 
 class Network:            
@@ -27,7 +22,6 @@ class Network:
     Steps: 
         - give some input
         - feedforward -> get activation vector
-
     '''
     def __init__(self, sizes, mu):
         self.layers = len(sizes)
@@ -37,7 +31,6 @@ class Network:
         self.biases = [np.random.randn(y,1) for y in sizes[1:]]                         # create array of biases with random numbers
         self.vb = [np.zeros(b.shape) for b in self.biases]
         self.vw = [np.zeros(w.shape) for w in self.weights]
-        self.result_new = []
 
     def feedForward(self, a):
         '''Calculates the activation vector from all inputs from previous layer.
@@ -54,35 +47,24 @@ class Network:
         being the training input and y being the desired output ->classification.
         You can use stochastic gradient descent with smaller batch sizes.
         '''
-        # -----------------------------------------
-        def plot():
-            subprocess.call(['bokeh', 'serve', '--show', 'nnetwork2.py'])
-
-            """plotting logic goes here"""
-            global x
-            x, self.result = [],[]
-            p = figure(background_fill_color='#F0E8E2', title="Learning curve")
-            s = ColumnDataSource(data=dict(x=x, y=self.result))
-            r = p.line('x', 'y', source=s)
-
-            def callback(attr,old,new):
-                s.data = dict(x=x, y=self.result)
-                s.trigger('data', s.data, s.data)
-                print "whats upppppp"
-
-            s.on_change('data', callback)
-            curdoc().add_root(p)
-
-        threading.
-
-        # -----------------------------------------
         if test_data: 
             n_test = len(test_data)
         trainingSize = len(trainingSet)
+        result_new = []
+
+        fig = plt.figure()
+        plt.ion()
+        plt.title("Learning curve")
+        plt.xlabel("Epoch")
+        plt.ylabel("Accuracy")
+        sub = fig.add_subplot(1, 1, 1)
+        start = sub.plot([], [], color='b', linestyle='-', lw=2)
+        sub.set_xlim([0, epochs])
+        sub.set_ylim([0, trainingSize])
+        plt.draw()
 
         # repeat this until finding 'reliable' accuracy between desired and real outcomes
         for i in xrange(epochs):
-            x.append(i)
             print "Starting epoch {0} with learning rate {1}".format(i, learningRate)
             start = time.time()
             random.shuffle(trainingSet)
@@ -93,22 +75,26 @@ class Network:
                 self.update(batch, learningRate)
             # take the 10K images that were reserved for validation and check accuracy
             print "Validating epoch {0}...".format(i)
+
             if test_data:
                 # update learning rate if performance increase
-                result_old = self.result_new
-                self.result_new.append(self.validate(test_data))
-                if i == 0:
-                    pass
-                else:
-                    if result_old[-1] < self.result_new[-1]:
+                result_old = result_new
+                result_new.append(self.validate(test_data))
+                if i > 0:
+                    if result_old[-1] < result_new[-1]:
                         learningRate -= 0.003              # assuming you're going the right way
                         print learningRate
                 print "Epoch {0}: {1} / {2}".format(
-                    i, self.result_new[-1], n_test)
+                    i, result_new[-1], n_test)
+                # -------------------------------------------
+                ax = plt.gca()
+                ax.plot(i,result_new[-1])
+                plt.draw()
 
-            print "Epoch {0} complete".format(i)
+                # -------------------------------------------
 
-            # time
+            else:
+                print "Epoch {0} complete".format(i)
             timer = time.time() - start
             print "Estimated time: ", timer
 
@@ -180,25 +166,15 @@ class Network:
         # draw(test_data, test_result)                                                    # draw images in command line
         return sum(int(x == y) for x, y in test_results)                                # check for accuracy
 
-    # def plot(self, epochs):
-    #     p = figure(x_range=(0,epochs), y_range=(0,10000), background_fill_color='#F0E8E2', title="Learning curve")
-    #     p.xgrid.grid_line_color = 'white'
-    #     p.ygrid.grid_line_color = 'white'
-    #     p.xaxis.axis_label = 'Epoch'
-    #     p.yaxis.axis_label = 'Correct guesses'
-
-    #     r = p.line(x=[],y=[], line_width=2)
-    #     ds = r.data_source
-
-    #     def callback(attr,old,new):
-    #         global plotiter
-    #         ds.data['x'].append(epochs[plotiter])
-    #         ds.data['y'].append(self.result_new[plotiter])
-    #         ds.trigger('data', ds.data, ds.data)
-    #         plotiter += 1
-
-    #     ds.on_change('data',callback)
-    #     curdoc().add_root(p)
+    # def plot(self, i, validation_result):
+    #     fig = plt.figure()
+    #     ax = fig.add_subplot(1,1,1)
+    #     ax.plot(np.arange(i), validation_result)
+    #     ax.set_xlim([0, 30])
+    #     ax.set_ylim([0, 10000])
+    #     ax.set_xlabel('Epoch')
+    #     ax.set_ylabel('Result')
+    #     plt.show()
 
 
 def draw(test_data, test_result):
@@ -230,7 +206,3 @@ def sigmoid(z):
 def sigmoid_prime(z):
     ''' Returns the derivative of sigmoid(z = w.x + b) w.r.t. z'''
     return sigmoid(z)*(1-sigmoid(z))
-
-
-
-

@@ -9,8 +9,8 @@ training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
 
 import nnetwork2
 # input layers are for the MNIST dataset where each image is of 28 x 28
-net = nnetwork2.Network([784, 100, 10], 0.9)
+net = nnetwork2.Network([784, 30, 10], 0.9)
 # the arguments are the following: training data, batch size, learning rate and number of epochs
-net.gradientDescent(training_data, 32, 3.0/2, 30, test_data=test_data)
+net.gradientDescent(training_data, 32, 3.0/2, 2, test_data=test_data)
 
 
