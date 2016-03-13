@@ -14,6 +14,7 @@ import math
 import sys
 import time
 import matplotlib.pyplot as plt
+# use json for matplotlib
 
 
 class Network:            
