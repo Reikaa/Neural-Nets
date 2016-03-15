@@ -17,8 +17,8 @@ import time
 import matplotlib.pyplot as plt
 from bokeh.plotting import figure, output_server, show, curdoc
 from bokeh.models import ColumnDataSource
-import subprocess
-import threading
+# import subprocess
+# import threading
 
 
 class Network:            
@@ -55,34 +55,33 @@ class Network:
         You can use stochastic gradient descent with smaller batch sizes.
         '''
         # -----------------------------------------
-        def plot():
-            subprocess.call(['bokeh', 'serve', '--show', 'nnetwork2.py'])
+        # def plot():
+        #     subprocess.call(['bokeh', 'serve', '--show', 'nnetwork2.py'])
 
-            """plotting logic goes here"""
-            global x
-            x, self.result = [],[]
-            p = figure(background_fill_color='#F0E8E2', title="Learning curve")
-            s = ColumnDataSource(data=dict(x=x, y=self.result))
-            r = p.line('x', 'y', source=s)
+        #     """plotting logic goes here"""
+        #     global x
+        #     x, self.result = [],[]
+        #     p = figure(background_fill_color='#F0E8E2', title="Learning curve")
+        #     s = ColumnDataSource(data=dict(x=x, y=self.result))
+        #     r = p.line('x', 'y', source=s)
 
-            def callback(attr,old,new):
-                s.data = dict(x=x, y=self.result)
-                s.trigger('data', s.data, s.data)
-                print "whats upppppp"
+        #     def callback(attr,old,new):
+        #         s.data = dict(x=x, y=self.result)
+        #         s.trigger('data', s.data, s.data)
+        #         print "whats upppppp"
 
-            s.on_change('data', callback)
-            curdoc().add_root(p)
-
-        threading.
+        #     s.on_change('data', callback)
+        #     curdoc().add_root(p)
 
         # -----------------------------------------
         if test_data: 
             n_test = len(test_data)
         trainingSize = len(trainingSet)
-
+        
+        self.result_new = []
         # repeat this until finding 'reliable' accuracy between desired and real outcomes
         for i in xrange(epochs):
-            x.append(i)
+            # x.append(i)
             print "Starting epoch {0} with learning rate {1}".format(i, learningRate)
             start = time.time()
             random.shuffle(trainingSet)
@@ -107,10 +106,10 @@ class Network:
                     i, self.result_new[-1], n_test)
 
             print "Epoch {0} complete".format(i)
-
             # time
             timer = time.time() - start
             print "Estimated time: ", timer
+        return self.result_new
 
     def update(self, batch, learningRate):
         '''

@@ -14,7 +14,7 @@ import sys
 # My library
 sys.path.append('../src/')
 import mnist_loader
-import nnetwork1
+import nnetwork2
 
 # Third-party libraries
 import matplotlib.pyplot as plt
@@ -30,12 +30,11 @@ def run_networks():
     random.seed(12345678)
     np.random.seed(12345678)
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
+    net = nnetwork2.Network([784, 30, 10], 0.5)
     results = []
     for eta in LEARNING_RATES:
         print "\nTrain a network using eta = "+str(eta)
-        net = nnetwork1.Network([784, 30, 10], 0.5)
-        results.append(
-            net.gradientDescent(training_data, 10, eta, NUM_EPOCHS,
+        results.append(net.gradientDescent(training_data, 10, eta, NUM_EPOCHS,
                     test_data=test_data))
     f = open("eta_graphs.json", "w")
     json.dump(results, f)
@@ -47,14 +46,12 @@ def plot():
     f.close()
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    for eta, result, color in zip(LEARNING_RATES, results, COLORS):
-        _, _, training_cost, _ = result
-        ax.plot(np.arange(NUM_EPOCHS), training_cost, "o-",
-                label="$\eta$ = "+str(eta),
-                color=color)
+    for eta, result, color in zip(LEARNING_RATES,results, COLORS):
+        print len(result), len(COLORS), len(np.arange(NUM_EPOCHS))
+        ax.plot(np.arange(NUM_EPOCHS), result, "o-", color=color, label="$\eta$ = "+str(eta))
     ax.set_xlim([0, NUM_EPOCHS])
     ax.set_xlabel('Epoch')
-    ax.set_ylabel('Cost')
+    ax.set_ylabel('Accuracy')
     plt.legend(loc='upper right')
     plt.show()
 
