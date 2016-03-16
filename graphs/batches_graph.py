@@ -3,7 +3,7 @@
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
 '''
-Plots how well our neural net is doing with different values of eta.
+Plots how well our neural net is doing with different batch sizes.
 '''
 
 # Standard library
@@ -14,47 +14,55 @@ import sys
 # My library
 sys.path.append('../networks/')
 import mnist_loader
-import nnetwork2
+import nnetwork
 
 # Third-party libraries
 import matplotlib.pyplot as plt
 import numpy as np
 
 # Constants
-LEARNING_RATES = [0.025, 0.25, 2.5]
-COLORS = ['#2A6EA6', '#FFCD33', '#FF7033']
+eta = 2.5
+color = '#2A6EA6'
 NUM_EPOCHS = 30
+INPUT_NEURONS = 784
+HIDDEN_NEURONS = 30
+OUTPUT_NEURONS = 10
+BATCH_SIZES = [10,30,100]
+COLORS = ['#2A6EA6', '#FFCD33', '#FF7033']
 
 def run_networks():
     # Make results more easily reproducible    
     random.seed(12345678)
     np.random.seed(12345678)
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
-    net = nnetwork2.Network([784, 30, 10], 0.5)
+    # instantiate network
+    net = nnetwork.Network([INPUT_NEURONS,HIDDEN_NEURONS,OUTPUT_NEURONS])
+    # run SGD
     results = []
-    for eta in LEARNING_RATES:
-        print "\nTrain a network using eta = "+str(eta)
-        results.append(net.gradientDescent(training_data, 10, eta, NUM_EPOCHS,
+    for batch in BATCH_SIZES:
+        results.append(net.gradientDescent(training_data, BATCH_SIZE, eta, NUM_EPOCHS,
                     test_data=test_data))
-    f = open("eta_graphs.json", "w")
+    f = open("batches_graph.json", "w")
     json.dump(results, f)
     f.close()
 
 def plot():
-    f = open("eta_graphs.json", "r")
+    f = open("batches_graph.json", "r")
     results = json.load(f)
+    results = [e/100.0 for e in results]
+    print results
     f.close()
     fig = plt.figure()
+    plt.title("Network I.")
     ax = fig.add_subplot(111)
-    for eta, result, color in zip(LEARNING_RATES,results, COLORS):
-        print len(result), len(COLORS), len(np.arange(NUM_EPOCHS))
-        ax.plot(np.arange(NUM_EPOCHS), result, "o-", color=color, label="$\eta$ = "+str(eta))
+    for result, color, batch in zip(results,COLORS,BATCH_SIZES):
+        ax.plot(np.arange(NUM_EPOCHS), result, "o-", color=color, label="Batch size = "+str(batch))
     ax.set_xlim([0, NUM_EPOCHS])
     ax.set_xlabel('Epoch')
-    ax.set_ylabel('Accuracy')
+    ax.set_ylabel('Accuracy in %')
     plt.legend(loc='lower right')
     plt.show()
 
 if __name__ == "__main__":
     run_networks()
-    plot()
+    # plot()

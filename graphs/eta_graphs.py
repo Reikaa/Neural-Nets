@@ -12,7 +12,7 @@ import random
 import sys
 
 # My library
-sys.path.append('../networks/')
+sys.path.append('../src/')
 import mnist_loader
 import nnetwork2
 
@@ -43,6 +43,7 @@ def run_networks():
 def plot():
     f = open("eta_graphs.json", "r")
     results = json.load(f)
+    results = [results/100 for e in results]
     f.close()
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -51,7 +52,7 @@ def plot():
         ax.plot(np.arange(NUM_EPOCHS), result, "o-", color=color, label="$\eta$ = "+str(eta))
     ax.set_xlim([0, NUM_EPOCHS])
     ax.set_xlabel('Epoch')
-    ax.set_ylabel('Accuracy')
+    ax.set_ylabel('Accuracy in %')
     plt.legend(loc='lower right')
     plt.show()
 

@@ -2,24 +2,15 @@
 # MNIST digit recognition 
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
-'''Neural net adjusted by Nesterov momentum. Accuracy goes up quickly to nearly 96 percent, same as with classical momentum.
-Time is still about the same: 15 seconds each epoch. 
-There is also learning rate adoption with step decay, resulting in no significant differences in performance.
+'''My first neural net; without any optimization. 95 percent accuracy in predicting digits, 10 seconds each epoch.
 Uncomment the draw function to see the ascii drawing of each digit and the corresponding prediction.
-Run by unit_test2.py, play with accuracy by adjusting the learning rate and epochs.'''
+Run by unit_test.py, play with accuracy by adjusting the learning rate and epochs.'''
 
 import numpy as np
 import random
 import math
 import sys
-import os
 import time
-import matplotlib.pyplot as plt
-from bokeh.plotting import figure, output_server, show, curdoc
-from bokeh.models import ColumnDataSource
-# import subprocess
-# import threading
-
 
 class Network:            
     '''
@@ -29,14 +20,11 @@ class Network:
         - feedforward -> get activation vector
 
     '''
-    def __init__(self, sizes, mu):
+    def __init__(self, sizes):
         self.layers = len(sizes)
-        self.sizes = sizes   
-        self.mu = mu                                                           # list of neurons on each layer
+        self.sizes = sizes                                                              # list of neurons on each layer
         self.weights = [np.random.randn(y,x) for x,y in zip(sizes[:-1], sizes[1:])]     # create array of weights with random numbers
         self.biases = [np.random.randn(y,1) for y in sizes[1:]]                         # create array of biases with random numbers
-        self.vb = [np.zeros(b.shape) for b in self.biases]
-        self.vw = [np.zeros(w.shape) for w in self.weights]
         self.result_new = []
 
     def feedForward(self, a):
@@ -54,35 +42,13 @@ class Network:
         being the training input and y being the desired output ->classification.
         You can use stochastic gradient descent with smaller batch sizes.
         '''
-        # -----------------------------------------
-        # def plot():
-        #     subprocess.call(['bokeh', 'serve', '--show', 'nnetwork2.py'])
-
-        #     """plotting logic goes here"""
-        #     global x
-        #     x, self.result = [],[]
-        #     p = figure(background_fill_color='#F0E8E2', title="Learning curve")
-        #     s = ColumnDataSource(data=dict(x=x, y=self.result))
-        #     r = p.line('x', 'y', source=s)
-
-        #     def callback(attr,old,new):
-        #         s.data = dict(x=x, y=self.result)
-        #         s.trigger('data', s.data, s.data)
-        #         print "whats upppppp"
-
-        #     s.on_change('data', callback)
-        #     curdoc().add_root(p)
-
-        # -----------------------------------------
-        if test_data: 
-            n_test = len(test_data)
+        if test_data: n_test = len(test_data)
         trainingSize = len(trainingSet)
-        
         self.result_new = []
+
         # repeat this until finding 'reliable' accuracy between desired and real outcomes
         for i in xrange(epochs):
-            # x.append(i)
-            print "Starting epoch {0} with learning rate {1}".format(i, learningRate)
+            print "Starting epochs"
             start = time.time()
             random.shuffle(trainingSet)
             # create smaller samples to do your computations on                                                   
@@ -91,22 +57,13 @@ class Network:
             for batch in batches:
                 self.update(batch, learningRate)
             # take the 10K images that were reserved for validation and check accuracy
-            print "Validating epoch {0}...".format(i)
+            print "Validating..."
+            self.result_new.append(self.validate(test_data))
             if test_data:
-                # update learning rate if performance increase
-                result_old = self.result_new
-                self.result_new.append(self.validate(test_data))
-                if i == 0:
-                    pass
-                else:
-                    if result_old[-1] < self.result_new[-1]:
-                        learningRate -= 0.003              # assuming you're going the right way
-                        print learningRate
                 print "Epoch {0}: {1} / {2}".format(
                     i, self.result_new[-1], n_test)
-
-            print "Epoch {0} complete".format(i)
-            # time
+            else:
+                print "Epoch {0} complete".format(i)
             timer = time.time() - start
             print "Estimated time: ", timer
         return self.result_new
@@ -121,18 +78,14 @@ class Network:
         '''
         # loop through each picture in the given batch: x is input, y is desired output
         for x,y in batch:
-            # temporary step with Nesterov
-            vw_prev = [v for v in self.vw]
-            vb_prev = [b for b in self.vb]
-            
+
             # backpropagate to get (C/b)' and (C/w)' - two vectors
             deltaBiases, deltaWeights = self.backprop(x,y)
 
-            # Nesterov update
-            self.vb = [self.mu * vb - learningRate * db/len(batch) for vb,db in zip(self.vb, deltaBiases)]
-            self.vw = [self.mu * vw - learningRate * dw/len(batch) for vw,dw in zip(self.vw, deltaWeights)]
-            self.weights = [w - self.mu * v + (1 + self.mu) * vw for w, v, vw in zip(self.weights, vw_prev, self.vw)]
-            self.biases = [b - self.mu * v + (1 + self.mu) * vb for b, v, vb in zip(self.biases, vb_prev, self.vb)]
+            # calculate new biases and weights
+            self.biases = [b - learningRate * db/len(batch) for b,db in zip(self.biases, deltaBiases)]
+            self.weights = [w - learningRate * dw/len(batch) for w,dw in zip(self.weights, deltaWeights)]
+
 
     def backprop(self, x, y):
         ''' Takes (x,y) where x is the pixel from the training image, y is the desired outcome
@@ -175,30 +128,10 @@ class Network:
         outcome -> the outcome that fired the most. 
         Then check how many images you'll get the correct result for.
         '''
+        print "validate training results per epoch"
         test_results = [(np.argmax(self.feedForward(x)),y) for x, y in test_data]
         # draw(test_data, test_result)                                                    # draw images in command line
         return sum(int(x == y) for x, y in test_results)                                # check for accuracy
-
-    # def plot(self, epochs):
-    #     p = figure(x_range=(0,epochs), y_range=(0,10000), background_fill_color='#F0E8E2', title="Learning curve")
-    #     p.xgrid.grid_line_color = 'white'
-    #     p.ygrid.grid_line_color = 'white'
-    #     p.xaxis.axis_label = 'Epoch'
-    #     p.yaxis.axis_label = 'Correct guesses'
-
-    #     r = p.line(x=[],y=[], line_width=2)
-    #     ds = r.data_source
-
-    #     def callback(attr,old,new):
-    #         global plotiter
-    #         ds.data['x'].append(epochs[plotiter])
-    #         ds.data['y'].append(self.result_new[plotiter])
-    #         ds.trigger('data', ds.data, ds.data)
-    #         plotiter += 1
-
-    #     ds.on_change('data',callback)
-    #     curdoc().add_root(p)
-
 
 def draw(test_data, test_result):
         # print len(test_data[0])       # 2 tuple inputs
@@ -229,7 +162,6 @@ def sigmoid(z):
 def sigmoid_prime(z):
     ''' Returns the derivative of sigmoid(z = w.x + b) w.r.t. z'''
     return sigmoid(z)*(1-sigmoid(z))
-
 
 
 
