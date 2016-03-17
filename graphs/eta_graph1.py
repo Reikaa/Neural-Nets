@@ -3,7 +3,7 @@
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
 '''
-Plots how well our neural net is doing with different values of eta.
+Plots network1 (momentum) to see how it is doing with different values of eta given mu=0.5.
 '''
 
 # Standard library
@@ -12,9 +12,9 @@ import random
 import sys
 
 # My library
-sys.path.append('../src/')
+sys.path.append('../networks/')
 import mnist_loader
-import nnetwork2
+import nnetwork1
 
 # Third-party libraries
 import matplotlib.pyplot as plt
@@ -24,24 +24,29 @@ import numpy as np
 LEARNING_RATES = [0.025, 0.25, 2.5]
 COLORS = ['#2A6EA6', '#FFCD33', '#FF7033']
 NUM_EPOCHS = 30
+INPUT_NEURONS = 784
+HIDDEN_NEURONS = 30
+OUTPUT_NEURONS = 10
+batch_size = 10
+mu = 0.5
 
 def run_networks():
     # Make results more easily reproducible    
     random.seed(12345678)
     np.random.seed(12345678)
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
-    net = nnetwork2.Network([784, 30, 10], 0.5)
+    net = nnetwork1.Network([INPUT_NEURONS,HIDDEN_NEURONS,OUTPUT_NEURONS], mu)
     results = []
     for eta in LEARNING_RATES:
         print "\nTrain a network using eta = "+str(eta)
-        results.append(net.gradientDescent(training_data, 10, eta, NUM_EPOCHS,
+        results.append(net.gradientDescent(training_data, batch_size, eta, NUM_EPOCHS,
                     test_data=test_data))
-    f = open("eta_graphs.json", "w")
+    f = open("eta_graph1.json", "w")
     json.dump(results, f)
     f.close()
 
 def plot():
-    f = open("eta_graphs.json", "r")
+    f = open("eta_graph1.json", "r")
     results = json.load(f)
     results = [results/100 for e in results]
     f.close()

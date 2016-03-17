@@ -11,6 +11,6 @@ import nnetwork
 # input layers are for the MNIST dataset where each image is of 28 x 28
 net = nnetwork.Network([784, 30, 10])
 # the arguments are the following: training data, batch size, learning rate and number of epochs
-net.gradientDescent(training_data, 10, 1.5, 30, test_data=test_data)
+net.gradientDescent(training_data, 10, 2.5, 30, test_data=test_data)
 
 

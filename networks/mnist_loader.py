@@ -12,8 +12,6 @@ function usually called by our neural network code.
 import cPickle
 import gzip
 import sys
-sys.path.append('../networks/')
-
 
 # Third-party libraries
 import numpy as np
@@ -37,7 +35,7 @@ def load_data():
     That's done in the wrapper function ``load_data_wrapper()``, see
     below.
     """
-    f = gzip.open('mnist.pkl.gz', 'rb')
+    f = gzip.open('../networks/mnist.pkl.gz', 'rb')
     training_data, validation_data, test_data = cPickle.load(f)
     f.close()
     return (training_data, validation_data, test_data)

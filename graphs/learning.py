@@ -3,7 +3,7 @@
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
 '''
-Plots the first network using hyperparameters suggested in the book.
+Plots the first network using the hyperparameters suggested in the book.
 '''
 
 # Standard library

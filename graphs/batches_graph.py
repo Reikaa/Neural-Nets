@@ -40,7 +40,7 @@ def run_networks():
     # run SGD
     results = []
     for batch in BATCH_SIZES:
-        results.append(net.gradientDescent(training_data, BATCH_SIZE, eta, NUM_EPOCHS,
+        results.append(net.gradientDescent(training_data, batch, eta, NUM_EPOCHS,
                     test_data=test_data))
     f = open("batches_graph.json", "w")
     json.dump(results, f)
@@ -49,7 +49,6 @@ def run_networks():
 def plot():
     f = open("batches_graph.json", "r")
     results = json.load(f)
-    results = [e/100.0 for e in results]
     print results
     f.close()
     fig = plt.figure()
@@ -64,5 +63,5 @@ def plot():
     plt.show()
 
 if __name__ == "__main__":
-    run_networks()
-    # plot()
+    # run_networks()
+    plot()

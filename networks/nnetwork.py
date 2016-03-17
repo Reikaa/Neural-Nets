@@ -128,7 +128,6 @@ class Network:
         outcome -> the outcome that fired the most. 
         Then check how many images you'll get the correct result for.
         '''
-        print "validate training results per epoch"
         test_results = [(np.argmax(self.feedForward(x)),y) for x, y in test_data]
         # draw(test_data, test_result)                                                    # draw images in command line
         return sum(int(x == y) for x, y in test_results)                                # check for accuracy

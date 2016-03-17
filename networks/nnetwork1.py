@@ -30,6 +30,7 @@ class Network:
         self.biases = [np.random.randn(y,1) for y in sizes[1:]]                         # create array of biases with random numbers
         self.vb = [np.zeros(b.shape) for b in self.biases]
         self.vw = [np.zeros(w.shape) for w in self.weights]
+        self.result_new = []
 
     def feedForward(self, a):
         '''Calculates the activation vector from all inputs from previous layer.
@@ -49,9 +50,10 @@ class Network:
         if test_data: n_test = len(test_data)
         trainingSize = len(trainingSet)
 
+        self.result_new = []
         # repeat this until finding 'reliable' accuracy between desired and real outcomes
         for i in xrange(epochs):
-            print "Starting epoch"
+            print "---------------- Starting epoch ----------------"
             start = time.time()
             random.shuffle(trainingSet)
             # create smaller samples to do your computations on                                                   
@@ -59,15 +61,18 @@ class Network:
             # update each image in each batch
             for batch in batches:
                 self.update(batch, learningRate)
+                self.result_new.append(self.validate(test_data))
             # take the 10K images that were reserved for validation and check accuracy
-            print "Validating per epoch..."
+            print "---------------- Validating per epoch ----------------"
             if test_data:
+                self.result_new.append(self.validate(test_data))
                 print "Epoch {0}: {1} / {2}".format(
-                    i, self.validate(test_data), n_test)
-            else:
-                print "Epoch {0} complete".format(i)
+                    i, self.result_new[-1], n_test)
+            print "Epoch {0} complete".format(i)
+            # time
             timer = time.time() - start
             print "Estimated time: ", timer
+        return self.result_new
 
     def update(self, batch, learningRate):
         '''
