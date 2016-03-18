@@ -36,12 +36,12 @@ def run_networks():
         print "\nTrain a network using eta = "+str(eta)
         results.append(net.gradientDescent(training_data, 10, eta, NUM_EPOCHS,
                     test_data=test_data))
-    f = open("eta_graphs.json", "w")
+    f = open("eta_graph2.json", "w")
     json.dump(results, f)
     f.close()
 
 def plot():
-    f = open("eta_graphs.json", "r")
+    f = open("eta_graph2.json", "r")
     results = json.load(f)
     results = [results/100 for e in results]
     f.close()

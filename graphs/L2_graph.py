@@ -3,7 +3,7 @@
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
 '''
-Plots network1 (momentum) to see how it is doing with different values of eta given mu=0.5.
+Plots network3 with L2 regularization.
 '''
 
 # Standard library
@@ -14,47 +14,50 @@ import sys
 # My library
 sys.path.append('../networks/')
 import mnist_loader
-import nnetwork1
+import nnetwork3
 
 # Third-party libraries
 import matplotlib.pyplot as plt
 import numpy as np
 
 # Constants
-LEARNING_RATES = [0.25, 2.5]
-COLORS = ['#2A6EA6', '#FFCD33']
+eta = 2.5
+COLORS = ['#2A6EA6', '#FFCD33','#FF7033']
 NUM_EPOCHS = 30
 INPUT_NEURONS = 784
 HIDDEN_NEURONS = 30
 OUTPUT_NEURONS = 10
-batch_size = 10
-mu = 0.5
+BATCH_SIZE = 10
+lmbda = [0.1, 1.5, 3.0]
 
 def run_networks():
     # Make results more easily reproducible    
     random.seed(12345678)
     np.random.seed(12345678)
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
-    net = nnetwork1.Network([INPUT_NEURONS,HIDDEN_NEURONS,OUTPUT_NEURONS], mu)
+    # instantiate network
+    net = nnetwork3.Network([INPUT_NEURONS,HIDDEN_NEURONS,OUTPUT_NEURONS])
+    # run SGD
     results = []
-    for eta in LEARNING_RATES:
-        print "\nTrain a network using eta = "+str(eta)
-        results.append(net.gradientDescent(training_data, batch_size, eta, NUM_EPOCHS,
+    for lmd in lmbda:
+        results.append(net.gradientDescent(training_data, BATCH_SIZE, eta, NUM_EPOCHS, lmd,
                     test_data=test_data))
-    f = open("eta_graph1.json", "w")
+    f = open("L2_graph.json", "w")
     json.dump(results, f)
     f.close()
 
 def plot():
-    f = open("eta_graph1.json", "r")
+    f = open("L2_graph.json", "r")
     results = json.load(f)
-    results = [results/100 for e in results]
+    # results = [e/100.0 for e in results]
+    # print results
     f.close()
     fig = plt.figure()
+    plt.title("Regularized network")
     ax = fig.add_subplot(111)
-    for eta, result, color in zip(LEARNING_RATES,results, COLORS):
-        print len(result), len(COLORS), len(np.arange(NUM_EPOCHS))
-        ax.plot(np.arange(NUM_EPOCHS), result, "o-", color=color, label="$\eta$ = "+str(eta))
+    for lmd, result, color in zip(lmbda,results, COLORS):
+        ax.plot(np.arange(NUM_EPOCHS), result, "o-", color=color, label=u"\u03BB = "+str(lmd))
+
     ax.set_xlim([0, NUM_EPOCHS])
     ax.set_xlabel('Epoch')
     ax.set_ylabel('Accuracy in %')
@@ -62,5 +65,5 @@ def plot():
     plt.show()
 
 if __name__ == "__main__":
-    run_networks()
+    # run_networks()
     plot()
