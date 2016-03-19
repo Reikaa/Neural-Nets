@@ -2,6 +2,8 @@
 # MNIST digit recognition 
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
+# Reminder: try to make the other graph into an additional file.
+
 '''
 Plots network3 with L2 regularization.
 '''

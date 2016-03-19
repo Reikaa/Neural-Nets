@@ -1,4 +1,4 @@
-# Dora Jambor
+# Doraaa Jambor
 # MNIST digit recognition 
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
