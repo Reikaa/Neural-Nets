@@ -2,12 +2,12 @@
 # MNIST digit recognition 
 # following Michael Nielsen's book on Neural Network and Deep Learning
 
-'''Neural network adjusted by L2 regulaizaton against overfitting-> weight decay. See L2_graphs for visualization'''
-
+'''Neural network adjusted by L2 regulaizaton against overfitting-> weight decay. 
+with weight squashing to make the activation function smoother for achieving larger learning.'''
 import numpy as np
 import random
 import math
-import sys
+import sys  
 import time
 
 class Network:            
@@ -80,8 +80,6 @@ class Network:
         and w.r.t. w for each neuron, which will then be used to calculate 
         the new biases and weights matrices. 
         biases = biases - learningRate * deltaB
-        weights = weights -learningRate * deltaW * input
-        '''
         n = len(trainingSet)
         # loop through each picture in the given batch: x is input, y is desired output
         for x,y in batch:
