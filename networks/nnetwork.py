@@ -1,7 +1,7 @@
 # Doraaa Jambor
 # MNIST digit recognition 
 # following Michael Nielsen's book on Neural Network and Deep Learning
-
+# add the json here
 '''My first neural net; without any optimization. 95 percent accuracy in predicting digits, 10 seconds each epoch.
 Uncomment the draw function to see the ascii drawing of each digit and the corresponding prediction.
 Run by unit_test.py, play with accuracy by adjusting the learning rate and epochs.'''
