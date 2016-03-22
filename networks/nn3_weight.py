@@ -4,6 +4,7 @@
 
 '''Neural network adjusted by L2 regulaizaton against overfitting-> weight decay. 
 with weight squashing to make the activation function smoother for achieving larger learning.'''
+
 import numpy as np
 import random
 import math
@@ -21,14 +22,14 @@ class Network:
     def __init__(self, sizes):
         self.layers = len(sizes)
         self.sizes = sizes                                                              # list of neurons on each layer
-        self.rand_weights_init()
+        self.squashed_weights_init(sizes)
         self.result_new = []
 
-    def squashed_weights_init(self):
+    def squashed_weights_init(self, sizes):
         self.weights = [np.random.randn(y,x)/np.sqrt(x) for x,y in zip(sizes[:-1], sizes[1:])]
         self.biases = [np.random.randn(y,1) for y in sizes[1:]]
 
-    def rand_weights_init(self):
+    def rand_weights_init(self,sizes):
         self.weights = [np.random.randn(y,x) for x,y in zip(sizes[:-1], sizes[1:])]
         self.biases = [np.random.randn(y,1) for y in sizes[1:]]
 
@@ -72,7 +73,11 @@ class Network:
                 print "Epoch {0} complete".format(i)
             timer = time.time() - start
             print "Estimated time: ", timer
-        return self.result_new
+        paramDict = {'weights' : self.weights, 'biases': self.biases}
+        f = open("parametersL2W.json", "w")
+        json.dump(paramDict, f, indent=0)
+        f.close()
+        # return self.result_new
 
     def update(self, batch, learningRate, lmbda, trainingSet):
         '''
@@ -80,6 +85,7 @@ class Network:
         and w.r.t. w for each neuron, which will then be used to calculate 
         the new biases and weights matrices. 
         biases = biases - learningRate * deltaB
+        '''
         n = len(trainingSet)
         # loop through each picture in the given batch: x is input, y is desired output
         for x,y in batch:
@@ -131,7 +137,7 @@ class Network:
         ''' Go through the data you set aside for validation, 
         take all outcomes (x vector) for each picture and get the INDEX of the highest 
         outcome -> the outcome that fired the most. 
-        Then check how many images you'll get the correct result for.
+        Then check how many images youll get the correct result for.
         '''
         test_results = [(np.argmax(self.feedForward(x)),y) for x, y in test_data]
         # draw(test_data, test_result)                                                    # draw images in command line
