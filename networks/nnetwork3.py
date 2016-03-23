@@ -40,7 +40,8 @@ class Network:
         - layers must be at least 1 - to start from first hidden layer'''
         for b, w in zip(self.biases, self.weights):                                      # you loop through each neuron on each layer
             a = sigmoid(np.dot(w, a) + b)                                                # to calculate activation vector in the last layer
-        return a                                                                         # z = w . x + b, a is the last output vector
+        return a                                                                             # z = w . x + b, a is the last output vector
+   
 
     def gradientDescent(self, trainingSet, batch_size, learningRate, epochs, lmbda, test_data=None):
         '''

@@ -10,15 +10,12 @@ import random
 import math
 import sys  
 import time
+import json
+import base64
+from numpyEncoder import *
+from scipy import misc, ndimage
 
 class Network:            
-    '''
-    Neural Network class
-    Steps: 
-        - give some input
-        - feedforward -> get activation vector
-
-    '''
     def __init__(self, sizes):
         self.layers = len(sizes)
         self.sizes = sizes                                                              # list of neurons on each layer
@@ -35,13 +32,18 @@ class Network:
 
 
     def feedForward(self, a):
-        '''Calculates the activation vector from all inputs from previous layer.
-        - redefine input vector if not fully connvected ?
-        - or set weights and biases to zero where no connection was made?
-        - layers must be at least 1 - to start from first hidden layer'''
+        '''Calculates the activation vector from all inputs from previous layer.'''
         for b, w in zip(self.biases, self.weights):                                      # you loop through each neuron on each layer
             a = sigmoid(np.dot(w, a) + b)                                                # to calculate activation vector in the last layer
         return a                                                                         # z = w . x + b, a is the last output vector
+
+    def bingo(self, a, biases, weights):
+        '''
+        Runs the network with the trained weights and biases and returns a guess.
+        '''
+        for b, w in zip(biases, weights):
+            a = sigmoid(np.dot(w, a) + b)
+        return a  
 
     def gradientDescent(self, trainingSet, batch_size, learningRate, epochs, lmbda, test_data=None):
         '''
@@ -68,16 +70,21 @@ class Network:
             self.result_new.append(self.validate(test_data))
             if test_data:
                 print "Epoch {0}: {1} / {2}".format(
-                    i, self.result_new[-1], n_test)
+                    i, self.result_new[-1], n_test*4)
             else:
                 print "Epoch {0} complete".format(i)
             timer = time.time() - start
             print "Estimated time: ", timer
-        paramDict = {'weights' : self.weights, 'biases': self.biases}
-        f = open("parametersL2W.json", "w")
-        json.dump(paramDict, f, indent=0)
-        f.close()
+
+        # f = open("weightsL2W.json", "w")
+        # json.dump(self.weights, f, cls=NumpyEncoder)
+        # f.close()
+
+        # b = open("biasesL2W.json", "w")
+        # json.dump(self.biases, b, cls=NumpyEncoder)
+        # b.close()
         # return self.result_new
+        # result = json.loads(dumped, object_hook=json_numpy_obj_hook)
 
     def update(self, batch, learningRate, lmbda, trainingSet):
         '''
@@ -89,14 +96,12 @@ class Network:
         n = len(trainingSet)
         # loop through each picture in the given batch: x is input, y is desired output
         for x,y in batch:
-
             # backpropagate to get (C/b)' and (C/w)' - two vectors
             deltaBiases, deltaWeights = self.backprop(x,y)
 
             # calculate new biases and weights
             self.biases = [b - learningRate * db/len(batch) for b,db in zip(self.biases, deltaBiases)]
             self.weights = [(1 - learningRate * lmbda/n) * w - learningRate * dw/len(batch) for w,dw in zip(self.weights, deltaWeights)]
-
 
     def backprop(self, x, y):
         ''' Takes (x,y) where x is the pixel from the training image, y is the desired outcome
@@ -139,6 +144,16 @@ class Network:
         outcome -> the outcome that fired the most. 
         Then check how many images youll get the correct result for.
         '''
+        print len(test_data)
+        test_data = [(im[0].reshape(28,28), im[1]) for im in test_data]
+        # manipulate validation set
+        test_data1 = test_data + [(ndimage.rotate(x, -20, reshape =False),y) for x,y in test_data]
+        test_data2 = test_data1 + [(ndimage.rotate(x, 20, reshape =False),y) for x,y in test_data]
+        test_data = test_data2 + [(ndimage.rotate(x, 0),y) for x,y in test_data]
+
+        # should be 40K images
+        print len(test_data)
+        test_data = [(im[0].reshape(784,1), im[1]) for im in test_data]
         test_results = [(np.argmax(self.feedForward(x)),y) for x, y in test_data]
         # draw(test_data, test_result)                                                    # draw images in command line
         return sum(int(x == y) for x, y in test_results)                                # check for accuracy
@@ -169,6 +184,7 @@ def sigmoid(z):
 def sigmoid_prime(z):
     ''' Returns the derivative of sigmoid(z = w.x + b) w.r.t. z'''
     return sigmoid(z)*(1-sigmoid(z))
+
 
 
 
