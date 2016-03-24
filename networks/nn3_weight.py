@@ -51,6 +51,22 @@ class Network:
         being the training input and y being the desired output ->classification.
         You can use stochastic gradient descent with smaller batch sizes.
         '''
+        extra = trainingSet[:5000]
+        print 'Length of training data initially: ', len(trainingSet)
+        data1 = trainingSet + [(ndimage.rotate(x, -10, reshape =False),y) for x,y in extra]
+        data2 = data1 + [(ndimage.rotate(x, 10, reshape =False),y) for x,y in extra]
+        trainingSet = data2 + [(ndimage.rotate(x, 0),y) for x,y in extra]
+        print 'Length of manipulated training data: ', len(trainingSet)
+
+        # manipulate validation set
+        extratest = test_data[:1000]
+        print 'Length of test data initially: ', len(test_data)
+        test_data1 = test_data + [(ndimage.rotate(x, -10, reshape =False),y) for x,y in extratest]
+        test_data2 = test_data1 + [(ndimage.rotate(x, 10, reshape =False),y) for x,y in extratest]
+        test_data = test_data2 + [(ndimage.rotate(x, 0),y) for x,y in extratest]
+        # should be 40K images
+        print 'Length of manipulated test data: ',len(test_data)
+
         if test_data: n_test = len(test_data)
         trainingSize = len(trainingSet)
         self.result_new = []
@@ -70,7 +86,7 @@ class Network:
             self.result_new.append(self.validate(test_data))
             if test_data:
                 print "Epoch {0}: {1} / {2}".format(
-                    i, self.result_new[-1], n_test*4)
+                    i, self.result_new[-1], n_test), 'Percentage', format(self.result_new[-1]/float(n_test)*100, '.2f')
             else:
                 print "Epoch {0} complete".format(i)
             timer = time.time() - start
@@ -144,16 +160,6 @@ class Network:
         outcome -> the outcome that fired the most. 
         Then check how many images youll get the correct result for.
         '''
-        print len(test_data)
-        test_data = [(im[0].reshape(28,28), im[1]) for im in test_data]
-        # manipulate validation set
-        test_data1 = test_data + [(ndimage.rotate(x, -20, reshape =False),y) for x,y in test_data]
-        test_data2 = test_data1 + [(ndimage.rotate(x, 20, reshape =False),y) for x,y in test_data]
-        test_data = test_data2 + [(ndimage.rotate(x, 0),y) for x,y in test_data]
-
-        # should be 40K images
-        print len(test_data)
-        test_data = [(im[0].reshape(784,1), im[1]) for im in test_data]
         test_results = [(np.argmax(self.feedForward(x)),y) for x, y in test_data]
         # draw(test_data, test_result)                                                    # draw images in command line
         return sum(int(x == y) for x, y in test_results)                                # check for accuracy

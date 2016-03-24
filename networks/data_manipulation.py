@@ -19,18 +19,17 @@ import scipy
 import mnist_loader
 # you can do this on either set
 training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
-
 # test on 5000 images
 data = validation_data[:5000]
-print len(data) # it's 5K images now
+print len(data) # it's 5K images now`
 
 # reshape for display
-data = [(im[0].reshape(28,28), im[1]) for im in data]
-
 data1 = data + [(ndimage.rotate(x, -20, reshape =False),y) for x,y in data]
 data2 = data1 + [(ndimage.rotate(x, 20, reshape =False),y) for x,y in data]
 data = data2 + [(ndimage.rotate(x, 0),y) for x,y in data]
 
 print len(data) # it's 20K images now
+# convert them into 28x28 instead of col vector
+data = [(im[0].reshape(28,28), im[1]) for im in data]
 pic = data[6000][0]
 scipy.misc.imsave('data.jpg', pic)
