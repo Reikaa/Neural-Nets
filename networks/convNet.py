@@ -26,9 +26,6 @@ else:
         "network3.py to set\nthe GPU flag to True."
 
 
-
-
-
 class FullyConnectedLayer(object):
 
 	def __init__(self, n_in, n_out, activationFunc = sigmoid, p_dropout=0.0):
@@ -69,6 +66,30 @@ class ConvPoolLayer(object):
         self.image_shape = image_shape
         self.poolsize = poolsize
         self.activationFunc = activationFunc
+
+        # num of filters x receptive field (5 x 5) / poolsize 
+        # --> num of neurons after the pool layer
+        n_out = (filter_shape[0]*np.prod(filter_shape[2:])/np.prod(poolsize))
+
+        # weights & biases
+        self.weights = theano.shared(np.asarray(
+        	np.random.normal(loc=0, scale=np.sqrt(1.0/n_out), size=filter_shape),
+        	dtype=theano.config.floatX), borrow = True)
+        self.biases = theano.shared(
+            np.asarray(
+                np.random.normal(loc=0, scale=1.0, size=(filter_shape[0],)),
+                dtype=theano.config.floatX),
+            borrow=True)
+        self.params = [self.weights, self.biases]
+
+    def set_inpt(self,inpt,inpt_dropout, mini_batch_size):
+    	# create an input matrix shaped by: batch size x 1 x 28 x 28
+    	# this input layer will account for all images in the batch
+    	self.inpt = inpt.reshape(self.image_shape)
+    	#
+    	conv_out = conv.conv2d(
+    		input=self.inpt, filter=self.weights, filter_shape=self.filter_shape,
+    		image_shape=self.image_shape)
 
 
 
